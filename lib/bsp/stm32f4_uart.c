@@ -10,6 +10,7 @@
 #include "stm32f4_uart.h"
 #include "stm32f4_gpio.h"
 #include "macro_types.h"
+#include "../../MAIL/Modele/MAIL.h"
 
 #define USART_NB	6
 static UART_HandleTypeDef UART_HandleStructure[USART_NB];
@@ -20,7 +21,7 @@ const USART_TypeDef * instance_array[USART_NB] = {USART1, USART2, USART3, UART4,
  * @func	void UART_init(UART_HandleTypeDef * UART_HandleStructure)
  * @pre 	L'intance de l'UART doit deja etre associee au parametre (UART_HandleStructure)
  * @param	UART_HandleStructure peut recevoir comme instance : USART1, USART2 ou USART6.
- * @param	mode : UART_RECEIVE_ON_MAIN ou UART_RECEIVE_ON_IT (pour activer les interruptions sur rÈception de caractËres)
+ * @param	mode : UART_RECEIVE_ON_MAIN ou UART_RECEIVE_ON_IT (pour activer les interruptions sur r√àception de caract√ãres)
  * @post	Cette fonction initialise les broches suivante selon l'USART choisit en parametre :
  * 				USART1 : Rx=PC7 et Tx=PB6,   init des horloge du GPIOB et de l'USART1.
  * 				USART2 : Rx=PC3 et Tx=PA2, init des horloge du GPIOA et de l'USART2.
@@ -59,35 +60,106 @@ void UART_init(uint8_t uart_id, uart_interrupt_mode_e mode)
 	
 	/*Activation de l'UART */
 	__HAL_UART_ENABLE(&UART_HandleStructure[index]);
-/*
+
+
 	if(mode == UART_RECEIVE_ON_IT)
 	{
-		// On fixe les prioritÈs des interruptions de usart6 PreemptionPriority = 0, SubPriority = 1 et on autorise les interruptions
+		// On fixe les priorit√às des interruptions de usart6 PreemptionPriority = 0, SubPriority = 1 et on autorise les interruptions
 		HAL_NVIC_SetPriority(USART6_IRQn , 0, 1);
 		HAL_NVIC_EnableIRQ(USART6_IRQn);
 		__HAL_UART_ENABLE_IT(&UART_HandleStructure[index],UART_IT_RXNE);
 	}
-*/
+
 }
 
+
+
+
+static uint8_t pData[1];
+
+static int indexFrom = 0;
+static int indexSubject = 0;
+static int indexMessage = 0;
+
+
+typedef enum machine_mail{
+	NON_RECEPTION =0,
+	RECEPTION_FROM,
+	RECEPTION_SUBJECT,
+	RECEPTION_MESSAGE
+}machine_mail;
+
+machine_mail machineMail = NON_RECEPTION;
+
+// Pas de printf en IT
 void USART6_IRQHandler(void)
 {
-	UART_IT_Buffer(6);
-	/*TODO :
-	 * uint8_t index = 6 - 1;
-	 * HAL_UART_IRQHandler(&instance_array[index]);
-	 */
+	static int test = 0;
+	uint8_t index = 6 - 1;
+	HAL_UART_IRQHandler(&UART_HandleStructure[index]);
+
+	if(pData[0]==1){
+		NUMERO_1[0] = '\0';
+		indexFrom = 0;
+		machineMail = RECEPTION_FROM;
+	}
+
+	if(pData[0]==2){
+		OBJET_1[0] = '\0';
+		indexSubject = 0;
+		machineMail = RECEPTION_SUBJECT;
+	}
+
+	if(pData[0]==3){
+		SMS_1[0] = '\0';
+		indexMessage = 0;
+		machineMail = RECEPTION_MESSAGE;
+	}
+
+	if(pData[0]==4){
+		machineMail = NON_RECEPTION;
+	}
+
+	switch(machineMail){
+		case NON_RECEPTION:
+
+			break;
+		case RECEPTION_FROM:
+			if(pData[0]!=1 && pData[0]!=2 && pData[0]!=3 && pData[0]!=4 ){
+				NUMERO_1[indexFrom] = pData[0];
+				indexFrom++;
+			}
+			break;
+		case RECEPTION_SUBJECT:
+			if(pData[0]!=1 && pData[0]!=2 && pData[0]!=3 && pData[0]!=4 ){
+				OBJET_1[indexSubject] = pData[0];
+				indexSubject++;
+			}
+			break;
+		case RECEPTION_MESSAGE:
+			if(pData[0]!=1 && pData[0]!=2 && pData[0]!=3 && pData[0]!=4 ){
+				SMS_1[indexMessage] = pData[0];
+				indexMessage++;
+			}
+			break;
+	}
+
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	uint8_t index = 6 - 1;
+	HAL_UART_Receive_IT(&UART_HandleStructure[index], pData, 1);
 }
 
 
-/*TODO:
- *
-
-running_e UART_getc_it_mode(uint8_t uart_id, uint8_t * pData, uint16_t size)
+running_e UART_getc_it_mode(uint8_t uart_id)
 {
 	running_e ret = IN_PROGRESS;
+	running_e err;
 	uint8_t index = uart_id - 1;
-	HAL_UART_Receive_IT(&UART_HandleStructure[index], pData, size);
+	err = HAL_UART_Receive_IT(&UART_HandleStructure[index], pData, 1);
+
 	switch(err)
 	{
 		case HAL_OK:
@@ -97,18 +169,8 @@ running_e UART_getc_it_mode(uint8_t uart_id, uint8_t * pData, uint16_t size)
 			ret = END_ERROR;
 				break;
 	}
-}
- */
 
-
-/**
- * @brief 	fonction appelÈe par les routines d'interruption des USART : elle va chercher l'octet reÁu.
- */
-void UART_IT_Buffer(uint8_t uart_id)
-{
-	uint8_t index = uart_id - 1;
-	uint8_t c;
-	c = (uint8_t)(instance_array[index]-> DR & (uint16_t)0x00FF);
+	return ret;
 }
 
 void UART_DeInit(uint8_t uart_id)
@@ -152,11 +214,11 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 
 
 /**
- * @brief	Fonction NON blocante qui retourne le dernier caractere reÁu sur l'USARTx. Ou 0 si pas de caractere reÁu.
+ * @brief	Fonction NON blocante qui retourne le dernier caractere re√Åu sur l'USARTx. Ou 0 si pas de caractere re√Åu.
  * @func 	char UART_getc(UART_HandleTypeDef * UART_Handle)
  * @param	UART_Handle : UART_Handle.Instance = USART1, USART2 ou USART6
- * @post	Si le caractere reÁu est 0, il n'est pas possible de faire la difference avec le cas o˘ aucun caractere n'est reÁu.
- * @ret		Le caractere reÁu, sur 8 bits.
+ * @post	Si le caractere re√Åu est 0, il n'est pas possible de faire la difference avec le cas oÀò aucun caractere n'est re√Åu.
+ * @ret		Le caractere re√Åu, sur 8 bits.
  */
 char UART_getc(uint8_t uart_id)
 {
@@ -172,7 +234,7 @@ char UART_getc(uint8_t uart_id)
 		return 0;
 		///gestion de l'erreur
 	}
-	/*Sinon on renvoie le mot reÁu (contenu dans le buffer) */
+	/*Sinon on renvoie le mot re√Åu (contenu dans le buffer) */
 	else
 		return (char) (received);
 }
@@ -189,4 +251,11 @@ void UART_putc(uint8_t uart_id, uint8_t c)
 	HAL_UART_Transmit(&UART_HandleStructure[index], &c, 1, UART_TIMEOUT);
 }
 
+void UART_printf(uint8_t uart_id, char* chaine, int len)
+{
+	uint8_t index = uart_id - 1;
+	int i = 0;
+	for(i=0; i<len; i++)
+		HAL_UART_Transmit(&UART_HandleStructure[index], chaine[i], 1, UART_TIMEOUT);
+}
 

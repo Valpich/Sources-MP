@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    /**
-     * \enum Type_TicTacToe
-     * \brief Definie l'enum Type_TicTacToe.
-     * Les valeurs pour les pions possibles sont : O,X.
-     */
-    typedef enum Type_TicTacToe{
-        X, O
-    }Type_TicTacToe;
+
+/**
+ * \enum Type_TicTacToe
+ * \brief Definie l'enum Type_TicTacToe.
+ * Les valeurs pour les pions possibles sont : O,X.
+ */
+typedef enum Type_TicTacToe{
+	X, O
+}Type_TicTacToe;
 
 
 #ifdef __cplusplus
@@ -30,4 +30,4 @@ extern "C" {
 
 
 #endif /*!defined(TYPE_TICTACTOE_H)*/
- 
+

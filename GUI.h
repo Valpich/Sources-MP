@@ -7,7 +7,9 @@ extern "C" {
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include "lcd_display_form_and_text.h"
+#include "../../demo_touchscreen.h"
 
 #define GREEN_LED	GPIOD, GPIO_PIN_12
 
@@ -31,11 +33,11 @@ typedef struct Croix_GUI{
 	Droite_GUI droite_B;
 }Croix_GUI;
 
-void LCD_BMP(uint8_t *bitmap);
-void test_dessin_image_1();
-void test_dessin_image_2();
+void LCD_BMP(uint16_t *bitmap);
 void allumerled();
 void delay(__IO uint32_t nCount);
+void display_char_pressed(int state);
+void display_coordinate_pressed();
 
 #ifdef __cplusplus
 }

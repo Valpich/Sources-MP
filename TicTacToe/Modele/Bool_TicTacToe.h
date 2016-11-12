@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    /*! \enum Bool
+
+/*! \enum Bool
      \brief Definie l'enum Bool.
       Les valeurs sont 0 pour FALSE_TICTACTOE, 1 pour TRUE_TICTACTOE.
-     */
-    typedef enum Bool_TicTacToe{
-        FALSE_TICTACTOE, TRUE_TICTACTOE
-    }Bool_TicTacToe;
+ */
+typedef enum Bool_TicTacToe{
+	FALSE_TICTACTOE, TRUE_TICTACTOE
+}Bool_TicTacToe;
 
 
 #ifdef __cplusplus
@@ -29,4 +29,3 @@ extern "C" {
 
 
 #endif /*!defined(BOOL_TICTACTOE_H)*/
- 

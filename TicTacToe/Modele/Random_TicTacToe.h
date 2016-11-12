@@ -13,20 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    #include <stdlib.h>
-    #include <stdint.h>
-    #include "Bool_TicTacToe.h"
-    #include "stm32f4xx_hal.h"
-    #define UINT16_DIVISE_2 32768
-    
-    /**
-     * \fn Bool_TicTacToe random_get_bool_TicTacToe()
-     * \brief Retourne un booleen aléatoire.
-     */
-    Bool_TicTacToe random_get_bool_TicTacToe();
-    
-    
+
+#include <stdlib.h>
+#include <stdint.h>
+#include "Bool_TicTacToe.h"
+#include "stm32f4xx_hal.h"
+#define UINT16_DIVISE_2 32768
+
+/**
+ * \fn Bool_TicTacToe random_get_bool_TicTacToe()
+ * \brief Retourne un booleen aléatoire.
+ */
+Bool_TicTacToe random_get_bool_TicTacToe();
+
+
 #ifdef __cplusplus
 }
 #endif

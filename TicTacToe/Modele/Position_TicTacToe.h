@@ -13,15 +13,15 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    /**
-     * \struct Position_TicTacToe
-     * \brief Definie la structure Position_TicTacToe.
-     */
-    typedef struct Position_TicTacToe{
-        int m_x;    /*!< La valeur en x de la position */
-        int m_y;    /*!< La valeur en y de la position */
-    }Position_TicTacToe;
+
+/**
+ * \struct Position_TicTacToe
+ * \brief Definie la structure Position_TicTacToe.
+ */
+typedef struct Position_TicTacToe{
+	int m_x;    /*!< La valeur en x de la position */
+	int m_y;    /*!< La valeur en y de la position */
+}Position_TicTacToe;
 
 
 
@@ -31,4 +31,3 @@ extern "C" {
 
 
 #endif /*!defined(POSITION_TICTACTOE_H)*/
- 

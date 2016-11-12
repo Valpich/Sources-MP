@@ -13,14 +13,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    /*! \enum Bool_1010
+
+/*! \enum Bool_1010
      \brief Definie l'enum Bool_1010.
       Les valeurs sont 0 pour FALSE_1010, 1 pour TRUE_1010.
-     */
-    typedef enum Bool_1010{
-        FALSE_1010, TRUE_1010
-    }Bool_1010;
+ */
+typedef enum Bool_1010{
+	FALSE_1010, TRUE_1010
+}Bool_1010;
 
 
 #ifdef __cplusplus
@@ -29,4 +29,3 @@ extern "C" {
 
 
 #endif /*!defined(BOOL_1010_H)*/
- 

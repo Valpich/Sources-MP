@@ -1,86 +1,86 @@
- /**
-  *
-  * \file main.c
-  */
+/**
+ *
+ * \file main.c
+ */
 
 /* Includes ------------------------------------------------------------------*/
 
-#include "stm32f4xx_hal.h"
-#include "macro_types.h"
 #include "main.h"
-#include "stm32f4_uart.h"
-#include "stm32f4_sys.h"
-#include "appli.h"
-#include "stm32f4_timer.h"
-#include "../../demo_touchscreen.h"
-#include "../Vue/Menu_Principal_GUI.h"
-#include "../Vue/Menu_SMS_GUI.h"
-#include "../Vue/Saisie_message_maj_GUI.h"
-#include "../Vue/Saisie_message_min_GUI.h"
-#include "../../1010/Vue/Jeu_1010_GUI.h"
-#include "../../TicTacToe/Vue/Jeu_TicTacToe_GUI.h"
+
+//#define DEBUG_ON
 
 /* Private functions ---------------------------------------------------------*/
 /**
-  * @brief  Main program.
-  * @func int main(void)
-  * @param  None
-  * @retval None
-  */
-int main(void)
-{
-//	asm_main();
+ * @brief  Main program.
+ * @func int main(void)
+ * @param  None
+ * @retval None
+ */
+int main(void){
 	HAL_Init();
-	SYS_init();			//initialisation du systeme (horloge...)
+	SYS_init();
 	APPLI_init();
+	UART_init(6,UART_RECEIVE_ON_MAIN);	//Initialisation de l'USART6 (PC6=Tx, PC7=Rx, 115200 bauds/sec)
+	SYS_set_std_usart(USART6,USART6,USART6);
 	NVIC_EnableIRQ(EXTI0_IRQn);
-	//TIMER2_run_1ms();
+	TIMER2_run_1ms();
 	STM32f4_Discovery_LCD_Init();
 	TS_Init();
-	bool_e test = FALSE;
-	uint16_t x=0,y=0;
-	while(test == FALSE)test = TS_Get_Touch(&x,&y);
 	while (1){
-		int image = 8;
-		switch(image){
-		case 1:
-			test_dessin_menu_principal();
-			break;
-		case 2:
-			test_dessin_1010();
-			break;
-		case 3:
-			test_dessin_TicTacToe();
-			break;
-		case 4:
-			test_dessin_menu_sms();
-			break;
-		case 5:
-			test_dessin_saisie_message_maj();
-			break;
-		case 6:
-			test_dessin_saisie_message_min();
-			break;
-		case 7:
-			jeu_lancer_TicTacToe();
-			break;
-		case 8:
-			test_dessin_menu_principal();
-			test_dessin_1010();
-			test_dessin_TicTacToe();
-			test_dessin_menu_sms();
-			test_dessin_saisie_message_maj();
-			test_dessin_saisie_message_min();
-			break;
-		default :
-			while(TS_Calibration(test,CALIBRATION_MODE_JUST_CALIBRATE)!=TRUE);
-			while(1)LCD_Clear(LCD_COLOR_YELLOW);
-			break;
-		}
+		tache_principale();
 	}
 }
 
-
-
+void tache_principale(){
+	typedef enum{
+		MENU_PRINCIPAL = 0,
+		APPLI_SMS,
+		APPLI_TICTACTOE,
+		APPLI_1010
+	}state_e;
+	bool_e test = FALSE;
+	static state_e etat = MENU_PRINCIPAL;
+	static state_e etat_precedent = -1;
+	uint16_t x = 0,y = 0;
+	bool_e appuye = FALSE;
+#ifdef DEBUG_ON
+	static char mail[] = "zetafr@gmail.com";
+	static char objet[] = "Objet mail";
+	static char message[] = "Message mail";
+	etat =-1;
+#endif
+	switch(etat){
+	case MENU_PRINCIPAL:
+		if(etat_precedent != etat){
+			dessin_menu_principal();
+		}
+		appuye = TS_Get_Touch(&x, &y);
+		if(appuye == TRUE)etat = appuye_menu(x, y);
+		etat_precedent = MENU_PRINCIPAL;
+		break;
+	case APPLI_SMS:
+#ifdef DEBUG_ON
+		SMS_envoyer(mail,objet,message);
+#endif
+		appli_SMS_lancer();
+		etat_precedent = APPLI_SMS;
+		etat = MENU_PRINCIPAL; //Fin de l'appli
+		break;
+	case APPLI_TICTACTOE:
+		jeu_lancer_TicTacToe();
+		etat_precedent = APPLI_TICTACTOE;
+		etat = MENU_PRINCIPAL; //Fin de l'appli
+		break;
+	case APPLI_1010:
+		jeu_lancer_1010();
+		etat_precedent = APPLI_1010;
+		etat = MENU_PRINCIPAL; //Fin de l'appli
+		break;
+	default :
+		etat_precedent = -1;
+		while(TS_Calibration(test,CALIBRATION_MODE_CALIBRATE_AND_SHOW_VALUE)!=TRUE);
+		break;
+	}
+}
 
 

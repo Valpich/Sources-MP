@@ -8,9 +8,9 @@
 #include "Random_TicTacToe.h"
 
 Bool_TicTacToe random_get_bool_TicTacToe(){
-    srand((uint16_t)SysTick->VAL);
-    if((uint16_t)rand() >= UINT16_DIVISE_2)return TRUE_TICTACTOE;
-    return FALSE_TICTACTOE;
+	srand((uint16_t)SysTick->VAL);
+	if((uint16_t)rand() >= UINT16_DIVISE_2)return TRUE_TICTACTOE;
+	return FALSE_TICTACTOE;
 }
 
 //CODE DE TEST STM32
@@ -48,4 +48,4 @@ while(1){
         else HAL_GPIO_WritePin(ORANGE_LED, 0);
     }
 }
-*/
+ */

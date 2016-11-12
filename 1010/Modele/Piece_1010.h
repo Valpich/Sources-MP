@@ -14,25 +14,26 @@
 extern "C" {
 #endif
 
-    #include <stdio.h>
-    #include "Type_1010.h"
-    #include "Element_1010.h"
-    #include "Random_1010.h"
-    
-    /**
-     * \struct Piece_1010
-     * \brief Definie la structure Piece_1010.
-     */
-    typedef struct Piece_1010{
-		Type_1010 m_Type;    /*!< Le type de la piece */
-    }Piece_1010;
-    
-    /**
-     * \fn Piece_1010 creation_piece_1010();
-     * \brief Retourne une nouvelle piece créée aléatoirement.
-     * \return La piece nouvellement créée.
-     */
-    Piece_1010 creation_piece_1010();
+#include <stdio.h>
+#include "Type_1010.h"
+#include "Element_1010.h"
+#include "Random_1010.h"
+
+/**
+ * \struct Piece_1010
+ * \brief Definie la structure Piece_1010.
+ */
+typedef struct Piece_1010{
+	Type_1010 m_Type;    /*!< Le type de la piece */
+	unsigned int m_taille;	/*!< La taille de la piece */
+}Piece_1010;
+
+/**
+ * \fn void creation_piece_1010();
+ * \brief Retourne une nouvelle piece créée aléatoirement.
+ * \param La piece nouvellement créée.
+ */
+void piece_creation_1010(Piece_1010 * piece);
 
 #ifdef __cplusplus
 }
@@ -40,4 +41,4 @@ extern "C" {
 
 
 #endif /*!defined(PIECE_1010_H)*/
- 
+
